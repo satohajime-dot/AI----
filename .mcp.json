@@ -2,7 +2,8 @@
   "mcpServers": {
     "google-chat": {
       "command": "node",
-      "args": ["mcp-google-chat/index.js"]
+      "args": ["mcp-google-chat/index.js"],
+      "env": { "GC_ENABLE_SEND": "1" }
     },
     "google-sheets": {
       "command": "node",

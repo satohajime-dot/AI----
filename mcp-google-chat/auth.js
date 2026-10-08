@@ -35,6 +35,8 @@ const REDIRECT_URI = `http://127.0.0.1:${PORT}`;
 const SCOPES = [
   "https://www.googleapis.com/auth/chat.spaces.readonly",
   "https://www.googleapis.com/auth/chat.messages.readonly",
+  // 送信を有効化（2026-10-08 オーナーの明示依頼。.mcp.json の GC_ENABLE_SEND=1 と対）
+  "https://www.googleapis.com/auth/chat.messages",
   "openid",
   "email",
 ];
