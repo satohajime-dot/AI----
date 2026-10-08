@@ -1,0 +1,10 @@
+{
+  "people": {
+    "users/111916941128264182931": {
+      "name": "自分",
+      "self": true,
+      "email": "sato.hajime@donuts.ne.jp"
+    }
+  },
+  "_説明": "Google Chat の発言者ID（users/<数字>）と名前の対応表。Chat API は発言者を ID でしか返さないため、ここで名前に直す。追記例: \"users/123\": {\"name\": \"山田さん\"}"
+}
