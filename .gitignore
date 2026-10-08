@@ -1,0 +1,14 @@
+mcp-google-chat/client_secret.json
+mcp-google-chat/token.json
+mcp-google-sheets/client_secret.json
+mcp-google-sheets/token.json
+**/client_secret.json
+**/token.json
+.env
+local/
+node_modules/
+__pycache__/
+
+# 秘書メソッドの配布キット（導入済みのため履歴に含めない）
+secretary-method-kit-v*/
+secretary-method-kit-v*.zip

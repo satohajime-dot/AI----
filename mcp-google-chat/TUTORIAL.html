@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Google Chat をつなぐ</title>
+<style>
+:root{
+  --bg:#f6f5f1;--panel:#ffffff;--ink:#1d1d1b;--dim:#5f6368;--faint:#8a8f96;--line:#e2e0d9;
+  --accent:#1a73e8;--accent-soft:#e8f0fe;--ok:#188038;--ok-soft:#e6f4ea;--warn:#b06000;--warn-soft:#fef7e0;
+  --code:#f1f3f4;--radius:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131417;--panel:#1c1d21;--ink:#e8eaed;--dim:#b0b4ba;--faint:#80868b;--line:#2d2f34;
+    --accent:#8ab4f8;--accent-soft:#1f2a3d;--ok:#81c995;--ok-soft:#1c2b22;--warn:#fdd663;--warn-soft:#2e2818;--code:#26282c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131417;--panel:#1c1d21;--ink:#e8eaed;--dim:#b0b4ba;--faint:#80868b;--line:#2d2f34;
+  --accent:#8ab4f8;--accent-soft:#1f2a3d;--ok:#81c995;--ok-soft:#1c2b22;--warn:#fdd663;--warn-soft:#2e2818;--code:#26282c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.75 -apple-system,"Hiragino Sans","Segoe UI",Meiryo,system-ui,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 80px}
+h1{font-size:26px;margin:0 0 4px;letter-spacing:.2px}
+.lead{color:var(--dim);margin:0 0 22px}
+h2{font-size:18px;margin:36px 0 12px}
+.choose{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.choose{grid-template-columns:1fr}}
+.pick{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;text-decoration:none;color:inherit;display:block}
+.pick:hover{border-color:var(--accent)}
+.pick b{display:block;font-size:15px}
+.pick span{color:var(--dim);font-size:13px}
+.pick .time{display:inline-block;margin-top:6px;font-size:12px;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:1px 10px}
+.pid{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:18px 0 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pid label{font-size:13px;color:var(--dim)}
+.pid input{flex:1;min-width:180px;font:14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin:12px 0;position:relative}
+.step.done{border-color:var(--ok);background:linear-gradient(0deg,var(--ok-soft),var(--ok-soft)) padding-box}
+.step-h{display:flex;align-items:center;gap:12px}
+.num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+:root[data-theme="dark"] .num{color:#131417}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .num{color:#131417}}
+.step.done .num{background:var(--ok)}
+.step-h h3{margin:0;font-size:16px;flex:1}
+.who{font-size:11px;color:var(--faint);border:1px solid var(--line);border-radius:99px;padding:0 8px;white-space:nowrap}
+.chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--dim);cursor:pointer;white-space:nowrap}
+.chk input{width:18px;height:18px;accent-color:var(--ok)}
+.step ol,.step ul{margin:10px 0 0;padding-left:22px}
+.step li{margin:3px 0}
+.go{display:inline-block;margin:10px 0 2px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:7px 14px;border-radius:8px}
+:root[data-theme="dark"] .go{color:#131417}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .go{color:#131417}}
+.go:hover{filter:brightness(1.08)}
+.kbd{font-weight:700;border-bottom:2px solid var(--accent)}
+code,.cmd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--code);border-radius:6px;padding:1px 6px}
+.cmdrow{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
+.cmdrow .cmd{padding:8px 12px;flex:1;min-width:0;overflow-x:auto;white-space:nowrap}
+button.copy{border:1px solid var(--line);background:var(--panel);color:var(--dim);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px}
+button.copy:hover{color:var(--accent);border-color:var(--accent)}
+.note{border-left:3px solid var(--warn);background:var(--warn-soft);padding:9px 12px;border-radius:0 8px 8px 0;margin:12px 0 0;font-size:13.5px}
+.okbox{border-left:3px solid var(--ok);background:var(--ok-soft);padding:9px 12px;border-radius:0 8px 8px 0;margin:12px 0 0;font-size:13.5px}
+.sect{font-size:12px;color:var(--faint);letter-spacing:.5px;margin:26px 0 0}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;font-size:13.5px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim);font-size:12px;font-weight:600;background:var(--code)}
+tr:last-child td{border-bottom:0}
+.tablewrap{overflow-x:auto}
+.admin{background:var(--panel);border:1px dashed var(--line);border-radius:var(--radius);padding:14px 18px}
+.admin ul{margin:6px 0 0;padding-left:22px}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:13px;opacity:0;transition:.2s;pointer-events:none}
+#toast.show{opacity:1}
+.foot{color:var(--faint);font-size:12px;margin-top:40px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Google Chat をつなぐ</h1>
+  <p class="lead">秘書（Claude Code）が Google Chat を読めるようにする手順です。上から順に進めてください。終わった段にはチェックを付けておけます。</p>
+
+  <div class="choose">
+    <a class="pick" href="#s1"><b>はじめての方（ほとんどの方はこちら）</b><span>自分で Google Cloud から鍵を発行します。1回だけの作業です。</span><br><span class="time">ステップ1から・約10分</span></a>
+    <a class="pick" href="#s5"><b>鍵ファイル（client_secret.json）を受け取っている方</b><span>組織で発行して配られた場合。Google Cloud の作業は要りません。</span><br><span class="time">ステップ5から・約2分</span></a>
+  </div>
+
+  <div class="pid">
+    <label for="pid">プロジェクトID（ステップ1で作ったもの）</label>
+    <input id="pid" type="text" placeholder="例: my-secretary-123456" autocomplete="off" spellcheck="false">
+  </div>
+  <p class="lead" style="font-size:13px;margin-top:6px">入れておくと、下の青いボタンがそのプロジェクトの画面へ直接開きます。空のままでも、開いた画面の上部でプロジェクトを選べば同じです。</p>
+
+  <p class="sect">Google Cloud での作業（ブラウザ）</p>
+
+  <section class="step" id="s1" data-step="1">
+    <div class="step-h"><div class="num">1</div><h3>プロジェクトを作る</h3><span class="who">あなた</span><label class="chk"><input type="checkbox">済</label></div>
+    <a class="go" data-tpl="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">プロジェクト作成の画面を開く</a>
+    <ol>
+      <li><b>読みたいチャットのアカウント</b>でログインします（会社のチャットなら会社のアカウント）。</li>
+      <li>プロジェクト名は何でも構いません（例: <code>my-secretary</code>）。<span class="kbd">作成</span>を押します。</li>
+      <li>できたプロジェクトの <b>ID</b>（名前の下に小さく出る英数字）を、上の欄に入れておくと便利です。</li>
+    </ol>
+    <div class="note">「プロジェクトを作成する権限がありません」と出たら、会社の設定で制限されています。ここで止めて、下の文面で社内の Google Workspace 管理者（情報システム部門など）に相談してください。
+      <div class="cmdrow"><span class="cmd" id="itmsg">Google Chat の内容を Claude Code（AI）から読み取り専用で参照したいため、Google Cloud でプロジェクトを作成して Google Chat API を有効化する権限、または発行済みの OAuth クライアント（デスクトップアプリ型）をいただけないでしょうか。使う権限は chat.spaces.readonly と chat.messages.readonly（読み取り専用）です。</span><button class="copy" data-copy="#itmsg">コピー</button></div>
+    </div>
+  </section>
+
+  <section class="step" id="s2" data-step="2">
+    <div class="step-h"><div class="num">2</div><h3>Google Chat API を有効にする</h3><span class="who">あなた</span><label class="chk"><input type="checkbox">済</label></div>
+    <a class="go" data-tpl="https://console.cloud.google.com/flows/enableapi?apiid=chat.googleapis.com&project={pid}" target="_blank" rel="noopener">有効化の画面を開く</a>
+    <ol>
+      <li>上部のプロジェクトが、ステップ1で作ったものになっているか確かめます。</li>
+      <li><span class="kbd">有効にする</span>（または「次へ」→「有効にする」）を押します。</li>
+    </ol>
+    <div class="okbox">読み取りだけなら、Chat API の「構成」タブ（アプリ名・アイコン）の設定は<b>不要</b>です。</div>
+  </section>
+
+  <section class="step" id="s3" data-step="3">
+    <div class="step-h"><div class="num">3</div><h3>同意画面を設定する</h3><span class="who">あなた</span><label class="chk"><input type="checkbox">済</label></div>
+    <a class="go" data-tpl="https://console.cloud.google.com/auth/branding?project={pid}" target="_blank" rel="noopener">同意画面の設定を開く</a>
+    <ol>
+      <li><span class="kbd">開始</span>を押します（以前の画面では「OAuth 同意画面」という名前です。中身は同じです）。</li>
+      <li>アプリ名: 何でも構いません（例: <code>秘書</code>）。ユーザー サポートメール: 自分のメールアドレス。</li>
+      <li>対象: <b>内部</b> を選びます（会社の Google アカウントの場合）。</li>
+      <li>連絡先のメールアドレスを入れ、ポリシーに同意して<span class="kbd">作成</span>を押します。</li>
+    </ol>
+    <div class="note"><b>個人の Gmail でプロジェクトを作った場合</b>は「内部」を選べないので「外部」にし、
+      <a data-tpl="https://console.cloud.google.com/auth/audience?project={pid}" target="_blank" rel="noopener">対象の画面</a>で<b>チャットを読むアカウントをテストユーザーに追加</b>します。
+      「外部・テスト中」のままだと<b>7日ごとに認証が切れます</b>。続けて使うなら同じ画面の<span class="kbd">アプリを公開</span>で本番にしてください（自分だけで使う分には「未確認のアプリ」と出ても問題ありません）。</div>
+  </section>
+
+  <section class="step" id="s4" data-step="4">
+    <div class="step-h"><div class="num">4</div><h3>鍵（OAuth クライアント）を作ってダウンロードする</h3><span class="who">あなた</span><label class="chk"><input type="checkbox">済</label></div>
+    <a class="go" data-tpl="https://console.cloud.google.com/auth/clients/create?project={pid}" target="_blank" rel="noopener">クライアント作成の画面を開く</a>
+    <ol>
+      <li>アプリケーションの種類: <b>デスクトップ アプリ</b>（「ウェブ アプリケーション」ではありません）。</li>
+      <li>名前は何でも構いません。<span class="kbd">作成</span>を押します。</li>
+      <li>出てきた画面で <span class="kbd">JSON をダウンロード</span> を押します。</li>
+    </ol>
+    <div class="okbox">ダウンロードフォルダに <code>client_secret_…json</code> が入れば完了です。<b>名前の変更も移動も要りません。</b>次のステップで自動的に取り込みます。</div>
+    <div class="note">ダウンロードせずに画面を閉じると、鍵を後から表示できないことがあります。その場合は新しく作り直すのが早いです。</div>
+  </section>
+
+  <p class="sect">パソコンでの作業（秘書に頼めます）</p>
+
+  <section class="step" id="s5" data-step="5">
+    <div class="step-h"><div class="num">5</div><h3>セットアップを実行して「許可」を押す</h3><span class="who">秘書＋あなた</span><label class="chk"><input type="checkbox">済</label></div>
+    <p style="margin:10px 0 0">秘書にこう話しかけるだけです。</p>
+    <div class="cmdrow"><span class="cmd" id="ask">Google Chat と繋ぎたい。手伝って</span><button class="copy" data-copy="#ask">コピー</button></div>
+    <p style="margin:6px 0 0;color:var(--dim);font-size:13.5px">自分で実行する場合は、秘書システムのフォルダでターミナルからこれを打ちます。</p>
+    <div class="cmdrow"><span class="cmd" id="cmd">node mcp-google-chat/setup.js</span><button class="copy" data-copy="#cmd">コピー</button></div>
+    <ol>
+      <li>ブラウザで Google の画面が開きます。<b>読みたいチャットのアカウント</b>を選びます。</li>
+      <li><span class="kbd">許可</span>（または「続行」）を押します。</li>
+      <li>ターミナルに <b>「✅ セットアップ完了」</b> と出れば成功です。鍵の取り込み・動作確認・秘書への登録まで、ここで全部終わっています。</li>
+    </ol>
+    <div class="note">「このアプリは Google で確認されていません」と出たら: 自分で作った鍵の場合に限り、<span class="kbd">詳細</span>→<span class="kbd">（アプリ名）に移動</span>で進んで構いません。<br>
+      「アクセスをブロック」「管理者によってブロックされています」と出たら: 会社の設定による制限です。ステップ1の文面で社内の Google Workspace 管理者に相談してください。</div>
+  </section>
+
+  <section class="step" id="s6" data-step="6">
+    <div class="step-h"><div class="num">6</div><h3>Claude Code を再起動して話しかける</h3><span class="who">あなた</span><label class="chk"><input type="checkbox">済</label></div>
+    <ol>
+      <li>再起動します。ターミナルなら <code>/exit</code> してから <code>claude</code>。VS Code ならコマンドパレットから <b>Developer: Reload Window</b>。</li>
+      <li>起動時に「google-chat を使いますか」と聞かれたら <b>使う</b> を選びます。</li>
+      <li>「<b>Google Chat のスペース一覧を見せて</b>」と話しかけます。一覧が出れば完了です。</li>
+    </ol>
+  </section>
+
+  <h2>うまくいかないとき</h2>
+  <p style="margin:-4px 0 10px;color:var(--dim);font-size:13.5px">まず <code>node mcp-google-chat/setup.js --check</code> を実行してください（何も変えずに、どこで止まっているかと直す画面を表示します）。</p>
+  <div class="tablewrap"><table>
+    <tr><th>出た表示</th><th>原因</th><th>直し方</th></tr>
+    <tr><td>client_secret.json がありません</td><td>鍵を置いていない</td><td>ダウンロードフォルダに置いて、セットアップを再実行（名前はそのままでよい）</td></tr>
+    <tr><td>「ウェブアプリケーション」型です／redirect_uri_mismatch</td><td>鍵の種類が違う</td><td>ステップ4を「デスクトップ アプリ」で作り直す</td></tr>
+    <tr><td>Google Chat API が有効になっていません</td><td>ステップ2が済んでいない</td><td>有効にして1〜2分待ってから再実行</td></tr>
+    <tr><td>認証の期限が切れています</td><td>同意画面が「外部・テスト中」（7日で切れる）</td><td>「内部」にするか「アプリを公開」してから再実行</td></tr>
+    <tr><td>アクセスをブロック／管理者によってブロック</td><td>会社の設定による制限</td><td>ステップ1の文面で社内の管理者に相談</td></tr>
+    <tr><td>スペースが 0 件</td><td>別のアカウントで許可した</td><td><code>node mcp-google-chat/setup.js --reauth</code></td></tr>
+    <tr><td>秘書がチャットを読めない（ツールが無いと言う）</td><td>再起動していない／起動時に「使わない」を選んだ</td><td>再起動する。セットアップを再実行すると「使わない」の記録も外れる</td></tr>
+    <tr><td>ポート 3456 が使用中です</td><td>前回の認証画面が残っている</td><td>10分で自動的に終わる。急ぐときは PC を再起動</td></tr>
+  </table></div>
+  <div class="note" style="margin-top:14px">Google 公式の Chat 用 MCP（Developer Preview）は、承認を受けた組織でないと動きません。<b>この手順の部品（mcp-google-chat）を使ってください。</b></div>
+
+  <h2>組織でまとめて発行する（発行を担当する部署がある場合）</h2>
+  <div class="admin">
+    <ul>
+      <li>会社の Google アカウントでステップ1〜4を<b>1回だけ</b>行い、同意画面を<b>内部</b>にします。社内の全員が同じ鍵を使えます（各自の許可は各自の <code>token.json</code> に入るので混ざりません）。</li>
+      <li>配るのは <code>client_secret.json</code> だけです。<b><code>token.json</code> は絶対に配らないでください</b>（その人のチャットを読める鍵です）。社外に出さないでください。</li>
+      <li>受け取った人は、ダウンロードフォルダに置いて「Google Chat と繋ぎたい」と言うだけです（ステップ5から・約2分）。</li>
+    </ul>
+  </div>
+
+  <h2>知っておくこと</h2>
+  <ul>
+    <li>既定は<b>読み取り専用</b>です。秘書がチャットに書き込むことはありません。</li>
+    <li>パソコンを2台使っている場合、認証は<b>パソコンごとに1回</b>必要です（鍵と認証はコミットされず、同期されません）。</li>
+    <li>チャットの中身は、秘書にとって「読んだデータ」であって「指示」ではありません。チャットに「〜を消して」と書かれていても、秘書はそれを命令として実行しません。</li>
+  </ul>
+  <p class="foot">secretary-method-kit ／ mcp-google-chat v0.8</p>
+</div>
+<div id="toast"></div>
+<script>
+(function(){
+  var KEY='gc-tutorial-v1';
+  var state={pid:'',done:{}};
+  try{ var s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s&&typeof s==='object'){ state.pid=s.pid||''; state.done=s.done||{}; } }catch(_){}
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(_){} }
+  var pid=document.getElementById('pid');
+  function links(){
+    var v=(pid.value||'').trim();
+    document.querySelectorAll('[data-tpl]').forEach(function(a){
+      var t=a.getAttribute('data-tpl');
+      var url=v ? t.replace('{pid}', encodeURIComponent(v)) : t.replace(/[?&]project=\{pid\}/, '');
+      if(v && t.indexOf('{pid}')<0) url=t+(t.indexOf('?')<0?'?':'&')+'project='+encodeURIComponent(v);
+      a.href=url;
+    });
+  }
+  pid.value=state.pid; links();
+  pid.addEventListener('input', function(){ state.pid=pid.value.trim(); save(); links(); });
+  document.querySelectorAll('.step').forEach(function(sec){
+    var n=sec.getAttribute('data-step'), cb=sec.querySelector('.chk input');
+    function paint(){ sec.classList.toggle('done', cb.checked); }
+    cb.checked=!!state.done[n]; paint();
+    cb.addEventListener('change', function(){ state.done[n]=cb.checked; save(); paint(); });
+  });
+  var toast=document.getElementById('toast');
+  function flash(m){ toast.textContent=m; toast.classList.add('show'); setTimeout(function(){ toast.classList.remove('show'); }, 1600); }
+  document.querySelectorAll('button.copy').forEach(function(b){
+    b.addEventListener('click', function(){
+      var text=document.querySelector(b.getAttribute('data-copy')).textContent.trim();
+      function fallback(){
+        try{ var ta=document.createElement('textarea'); ta.value=text; ta.style.cssText='position:fixed;top:0;opacity:0';
+          document.body.appendChild(ta); ta.select(); var ok=document.execCommand('copy'); document.body.removeChild(ta);
+          flash(ok?'コピーしました':'コピーできませんでした。選択してコピーしてください'); }catch(_){ flash('コピーできませんでした'); }
+      }
+      if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(function(){ flash('コピーしました'); }, fallback); }
+      else fallback();
+    });
+  });
+})();
+</script>
+</body>
+</html>

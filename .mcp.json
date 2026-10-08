@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "google-chat": {
+      "command": "node",
+      "args": ["mcp-google-chat/index.js"]
+    },
+    "google-sheets": {
+      "command": "node",
+      "args": ["mcp-google-sheets/index.js"]
+    }
+  }
+}

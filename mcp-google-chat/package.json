@@ -1,0 +1,16 @@
+{
+  "name": "mcp-google-chat",
+  "version": "0.8.0",
+  "description": "Google Chat 読み取り MCP サーバー（依存パッケージなし・Node.js 18+ で動作）",
+  "type": "module",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "setup": "node setup.js",
+    "auth": "node auth.js",
+    "start": "node index.js"
+  }
+}

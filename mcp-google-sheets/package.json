@@ -1,0 +1,16 @@
+{
+  "name": "mcp-google-sheets",
+  "version": "0.9.0",
+  "description": "Google スプレッドシート MCP サーバー（依存パッケージなし・Node.js 18+ で動作・既定は読み取り専用）",
+  "type": "module",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "auth": "node auth.js",
+    "auth:write": "node auth.js --write",
+    "start": "node index.js"
+  }
+}
